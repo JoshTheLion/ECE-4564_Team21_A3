@@ -9,7 +9,7 @@ Supports 4 cURL command formats:
     curl -u service_username:service_password http://127.0.0.1:8081/Marvel?story=36864
     curl -u service_username:service_password -d "user=scrape_user&pass=scrape_pass" http://127.0.0.1:3000/Weather/<city>
     curl -u service_username:service_password -d "user=scrape_user&pass=scrape_pass" http://127.0.0.1:3000/COVID/<state>
-    curl -u service_user:service_pass -d "user=scrape_user?pass=scrape_pass&new_user=user2&new_pass=pass2"
+    curl -u service_username:service_password -d "user=scrape_user?pass=scrape_pass&new_user=user2&new_pass=pass2"
         -X POST http://127.0.0.1:3000/Update
 
 Based on example code from a 4-part series of articles by Miguel Grinberg, at:
@@ -20,7 +20,9 @@ from flask import Flask, jsonify, abort, request, make_response, url_for
 from flask_httpauth import HTTPBasicAuth
 
 from flask import session, flash, render_template
-from requests.auth import HTTPBasicAuth
+#from requests.auth import HTTPBasicAuth
+
+import requests # To send+recieve HTTP GET/POST requests to/from the Scraper Flask and the Marvel API
 
 
 ### Initialization ###
@@ -30,19 +32,25 @@ app = Flask(__name__)
 SERVICE_IP = '127.0.0.1'  # NOTE: This is hardcoded as '127.0.0.1' so it can be tested locally
 SERVICE_PORT = 3000
 
-service_user = 'admin'
-service_pass = 'secret'
+SCRAPER_IP = '127.0.0.1'  # NOTE: This is hardcoded as '127.0.0.1' so it can be tested locally
+SCRAPER_PORT = 8081
 
 KEY_MARVEL = '5fd57f8f0bc35903bab675fbfc99d9f7'
+
+service_username = 'admin'
+service_password = 'secret'
 
 auth = HTTPBasicAuth()
 
 ### Authentication Routes ###
-@auth.get_password
-def get_password(password):
-    if password == service_pass:
-        return 'Success!'
-    return None
+@auth.verify_password
+def verify_password(username, password):
+    if username == service_username:
+        if password == service_pass:
+            return True
+        return False
+    return False
+# end of function
 
 @auth.error_handler
 def unauthorized():
@@ -58,6 +66,41 @@ def bad_request(error):
 def not_found(error):
     return make_response(jsonify({'error': 'Not found'}), 404)
 
+#============================================================#
+# TODO: Finish adapting this section for our purposes
+#============================================================#
+@app.route('/api/users', methods=['POST'])
+def new_user():
+    # TODO: Send to Scraper Flask instance with Python requests #
+    r = None
+    #r = requests.post('http://' + SCRAPER_IP + ':' + SCRAPER_PORT + '/Update?user=' + {scrape_user} + '&pass=' + {scrape_pass})
+    if not r:
+        return ('failure')
+    return ('success')
+# end of function
+
+
+@app.route('/api/users/<int:id>')
+def get_user(id):
+    user = User.query.get(id)
+    if not user:
+        abort(400)
+    return jsonify({'username': user.username})
+
+
+@app.route('/api/token')
+@auth.login_required
+def get_auth_token():
+    token = g.user.generate_auth_token(600)
+    return jsonify({'token': token.decode('ascii'), 'duration': 600})
+
+
+@app.route('/api/resource')
+@auth.login_required
+def get_resource():
+    return jsonify({'data': 'Hello, %s!' % g.user.username})
+#============================================================#
+
 ### Service Module Utility Code ###
 ###
 #api public key for marvel
@@ -65,8 +108,8 @@ def not_found(error):
 ####
 # request with auth=username, password
 ####
-url = "https://gateway.marvel.com/v1/public/stories/36864?apikey=5fd57f8f0bc35903bab675fbfc99d9f7"
-r = request.get(url, auth=('username', 'password'))
+url = "https://gateway.marvel.com/v1/public/stories/36864?" + KEY_MARVEL
+r = requests.get(url, auth=('username', 'password'))
 
 ####
 # capture the sent username and password 
@@ -114,6 +157,7 @@ def decorated_func_2
     return None
 # end of function
 
+###
 
-if __name__ == '_main_': #run the services
+if __name__ == '_main_': # Run the Service Flask instance
     app.run(debug=True, host='0.0.0', port=SERVICE_PORT)
