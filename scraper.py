@@ -125,12 +125,12 @@ def get_resource():
     return jsonify({'data': 'Hello, %s!' % g.user.username})
 #============================================================#
 
-
+@app.route('/Weather/<string:city>', methods=['GET'])
+@auth.login_required
 ### Gathering Weather Data ###
 
 # input city name here
 city_name = 'Blacksburg'
-
 # gather weather data from API based on city
 URL = 'http://api.openweathermap.org/data/2.5/weather?q='+ city_name +'&appid=' + KEY_WEATHER #pseudo website
 
@@ -152,6 +152,16 @@ print r.headers['content-type']
 #soup = BeautifulSoup(page.content, 'html.parser')
 #page = soup.find(id = 'ResulsContainer')
 
+### Gathering Covid Data ###
+# input state name here
+state_name = 'Maine'
+@app.route('/Covid/<string:state>', methods=['GET'])
+@auth.login_required
+URL2 = 'https//wwww.worldometer.info/coronavirus/country/us'
+pages = requests.get(URL2)
+soup = BeautifulSoup(page.content, 'html.parser')
+result = soup.find(id='usa_table_countries_today')
+stateN = result.find('a', string=state)
 
 if __name__ == '_main_': # Run the Scraper Flask instance
     app.run(debug=True, host='0.0.0', port=SCRAPER_PORT)
