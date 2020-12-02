@@ -144,20 +144,38 @@ def notFound(error):
 ### Request Routes ###
 
 #one route
-@app.route('/example_1', methods = ['GET'])
-def decorated_func_1
-    print('Route 1 Requested')
-    return None
+@app.route('/Weather/<string:city>', methods = ['POST'])
+def weatherfunct(city_name):
+    info = str(requests.get_data().split('&'))
+    print(info)
+    user = info[0].split('=')
+    userpassword = info[1].split('=')
+    URL = "http://127.0.0.1:5001/Weather/"+city_name
+    print(user[1])
+    print(userpassword[0])
+    print(URL)
+    req = requests.get(URL, auth = (user[1], userpassword[0]))
+    result = req.text
+    return result
 # end of function
 
 #the second route
-@app.route('/example_2', methods = ['POST'])
-def decorated_func_2
-    print('Route 2 Requested')
-    return None
+@app.route('/COVID/<string:state>', methods = ['POST'])
+def decorated_func_2():
+    info = str(requests.get_data().split('&'))
+    print(info)
+    user = info[0].split('=')
+    userpassword = info[1].split('=')
+    print(user[1])
+    print(userpassword[0])
+    print(URL)
+    req = requests.get(URL, auth = (user[1], userpassword[0]))
+    result = req.text
+    return result
 # end of function
 
-###
+###                   
+
 
 if __name__ == '_main_': # Run the Service Flask instance
     app.run(debug=True, host='0.0.0', port=SERVICE_PORT)
