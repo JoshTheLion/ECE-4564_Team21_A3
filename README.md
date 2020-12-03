@@ -7,19 +7,19 @@ Throughout this assignment, we encountered roadblocks that have become somewhat 
 
 # External Libraries Used
   ### From server.py
-- `from flask import Flask` used to make web application
+- `from flask import Flask` : used to make web application
 
-- `from flask_httpauth import HTTPBasicAuth` : Used to get password and username in service.py
+- `from flask_httpauth import HTTPBasicAuth` : used to get password and username in service.py
 
 - `import hashlib` : used for encryption of marvel
 - `import argparse` : used in service
 - `import json` : used in service.py
-- `import requests` : To send+recieve HTTP GET/POST requests to/from the Scraper Flask and the Marvel API
+- `import requests` : to send+recieve HTTP GET/POST requests to/from the Scraper Flask and the Marvel API
 
   ### From scraper.py
   
 - `from flask_httpauth import HTTPBasicAuth` : used for username and password
-- `import requests` :  To recieve+send HTTP POST/GET requests from/to the Service Flask and the Weather Data API
+- `import requests` :  to recieve+send HTTP POST/GET requests from/to the Service Flask and the Weather Data API
 
   ### Libraries to help scrape COVID data from:
     https://www.worldometers.info/coronavirus/country/us/
