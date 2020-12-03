@@ -6,16 +6,11 @@
 Throughout this assignment, we encountered roadblocks that have become somewhat familiar this semester. Primarily, this was in the form of time constraints imposed by assignments from other classes and other commitments associated with Thanksgiving Break. As for the assignment itself, there was a large scope of requisite background material to know how to get started working, so much time was spent studying/reviewing the context of the assignment. Additionally, the new RESTful Flask tooling took time to become familiar with.
 
 # External Libraries Used
-  ## From server.py
+  ## From service.py
 - `import sys` : used for system exit 
 - `import json` :  was a potential serialization alternative to Pickle
-- `import socket` : used to help with socket connections
-- `import tweepy as twp` : used to help extract and listen to tweets
 - `import hashlib` : used to hash the message data
-- `import pickle` : used to help stream serialized data
-- `from tweepy.streaming import StreamListener` : help assit with twitter portion
-- `from cryptography.fernet import Fernet` : used to help encode and decode
-- `import wolframalpha as wolf`: help with api for wolframaplha
+
 
   from flask import Flask, jsonify, abort, request, make_response, url_for
   from flask_httpauth import HTTPBasicAuth
@@ -41,18 +36,7 @@ Throughout this assignment, we encountered roadblocks that have become somewhat 
   from bs4 import BeautifulSoup
   from urllib.request import Request, urlopen
 
-  # Insert the names of other python files here as imports
-  - `import IBM_Watson_TTS` : used for audio
-  - `from ServerKeys import api_id` : used to extract api key
-  - `import ClientKeys` : used to extract client key
-
-  # Importing consumer key, consumer secret, access token, access secret. These help with twitter API
-  - `ckey = ClientKeys.Twitter_API_key`
-  - `csecret = ClientKeys.Twitter_API_secret`
-  - `atoken = ClientKeys.Twitter_access_token`
-  - `asecret = ClientKeys.Twitter_access_secret`
-
 # Team Members Contributions
-- Marilyn contributed to ...
+- Marilyn contributed to the scraper.py gathering data for covid. Also help contribute and write the services.py file for marvel, covid, and weather.  
 - Tyron contributed to ...
 - Joshua contributed by organizing and communicating workflow plans, adding ~300 lines of structural code for team to build on, reorganizing, refactoring, and debugging code intermittently
