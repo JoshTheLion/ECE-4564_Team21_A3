@@ -36,7 +36,8 @@ SCRAPER_IP = '127.0.0.1'  # NOTE: This is hardcoded as '127.0.0.1' so it can be 
 SCRAPER_PORT = 8081
 
 KEY_MARVEL = '5fd57f8f0bc35903bab675fbfc99d9f7'
-
+PRIVATE_KEY_MARVEL = 'b790475b329908ce985571a69040077fb8f54f8d'
+TIME_STAMP = ''
 service_username = 'admin'
 service_password = 'secret'
 
@@ -105,12 +106,19 @@ def get_resource():
 ###
 #api public key for marvel
 #5fd57f8f0bc35903bab675fbfc99d9f7
+#api private key for marvel
+#b790475b329908ce985571a69040077fb8f54f8d
 ####
 # request with auth=username, password
 ####
-url = "https://gateway.marvel.com/v1/public/stories/36864?" + KEY_MARVEL
-r = requests.get(url, auth=('username', 'password'))
-
+def marvel():
+    marv = KEY_MARVEL + PRIVATE_KEY_MARVEL + --
+    marv_unecrypted = hashlib.md5(marv.encode())
+    url = "https://gateway.marvel.com/v1/public/stories/36864?" + KEY_MARVEL
+    print(url)
+    r = requests.get(url, auth=('username', 'password'))
+    finalresults = r.text
+    return finalresults
 ####
 # capture the sent username and password 
 # and compare to whatever the login credentials saved
