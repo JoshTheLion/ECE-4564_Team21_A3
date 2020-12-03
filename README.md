@@ -50,5 +50,5 @@ Throughout this assignment, we encountered roadblocks that have become somewhat 
 
 # Team Members Contributions
 - Marilyn contributed to the scraper.py gathering data for covid. Also help contribute and write the services.py file for marvel, covid, and weather.
-- Tyron contributed to ...
+- Tyron contributed to the scraper.py gathering data for the weather by city.
 - Joshua contributed by organizing and communicating workflow plans, adding ~300 lines of structural code for team to build on, reorganizing, refactoring, and debugging code intermittently
