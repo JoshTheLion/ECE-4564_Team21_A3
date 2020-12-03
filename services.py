@@ -21,7 +21,9 @@ from flask_httpauth import HTTPBasicAuth
 
 from flask import session, flash, render_template
 #from requests.auth import HTTPBasicAuth
-
+import hashlib
+import argparse
+import json
 import requests # To send+recieve HTTP GET/POST requests to/from the Scraper Flask and the Marvel API
 
 
@@ -40,14 +42,14 @@ PRIVATE_KEY_MARVEL = 'b790475b329908ce985571a69040077fb8f54f8d'
 TIME_STAMP = '113020200555'
 service_username = 'admin'
 service_password = 'secret'
-
+marv = KEY_MARVEL + PRIVATE_KEY_MARVEL + TIME_STAMP
 auth = HTTPBasicAuth()
 
 ### Authentication Routes ###
 @auth.verify_password
 def verify_password(username, password):
     if username == service_username:
-        if password == service_pass:
+        if password == service_password:
             return True
         return False
     return False
@@ -70,37 +72,6 @@ def not_found(error):
 #============================================================#
 # TODO: Finish adapting this section for our purposes
 #============================================================#
-@app.route('/api/users', methods=['POST'])
-def new_user():
-    # TODO: Send to Scraper Flask instance with Python requests #
-    r = None
-    #r = requests.post('http://' + SCRAPER_IP + ':' + SCRAPER_PORT + '/Update?user=' + {scrape_user} + '&pass=' + {scrape_pass})
-    if not r:
-        return ('failure')
-    return ('success')
-# end of function
-
-
-@app.route('/api/users/<int:id>')
-def get_user(id):
-    user = User.query.get(id)
-    if not user:
-        abort(400)
-    return jsonify({'username': user.username})
-
-
-@app.route('/api/token')
-@auth.login_required
-def get_auth_token():
-    token = g.user.generate_auth_token(600)
-    return jsonify({'token': token.decode('ascii'), 'duration': 600})
-
-
-@app.route('/api/resource')
-@auth.login_required
-def get_resource():
-    return jsonify({'data': 'Hello, %s!' % g.user.username})
-#============================================================#
 
 ### Service Module Utility Code ###
 ###
@@ -112,9 +83,8 @@ def get_resource():
 # request with auth=username, password
 ####
 def marvel():
-    marv = KEY_MARVEL + PRIVATE_KEY_MARVEL + ???????
     marv_unecrypted = hashlib.md5(marv.encode())
-    url = "https://gateway.marvel.com/v1/public/stories/36864?" + KEY_MARVEL
+    url = "https://gateway.marvel.com/v1/public/stories/36864?" + str(request.args.get(marv_unecrypted))
     print(url)
     r = requests.get(url, auth=('username', 'password'))
     finalresults = r.text
@@ -124,24 +94,15 @@ def marvel():
 # and compare to whatever the login credentials saved
 # into the python script
 ####
-def dosomething():
-    print(r.text)
-    return None
-# end of function
 
-def home():
-    if not session.get('logged_in'):
-        return render_template('login.html')
-    else:
-        return dosomething() #the main method for serices?
-# end of function
+
 
 def do_admin_login():#pythonspot.com
     if request.form['password'] == 'secret' and request.form['username'] == 'admin':
         session['logged_in'] = True
     else:
         flash('Wrong password!')
-    return home()
+    return None
 # end of function
 
 def notFound(error):
@@ -153,8 +114,9 @@ def notFound(error):
 
 #one route
 @app.route('/Weather/<string:city>', methods = ['POST'])
+@auth.login_required
 def weatherfunct(city_name):
-    info = str(requests.get_data().split('&'))
+    info = str(request.get_data().split('&'))
     print(info)
     user = info[0].split('=')
     userpassword = info[1].split('=')
@@ -169,13 +131,15 @@ def weatherfunct(city_name):
 
 #the second route
 @app.route('/COVID/<string:state>', methods = ['POST'])
-def decorated_func_2():
-    info = str(requests.get_data().split('&'))
+@auth.login_required
+def covid_func(state):
+    info = str(request.get_data().split('&'))
     print(info)
     user = info[0].split('=')
     userpassword = info[1].split('=')
     print(user[1])
     print(userpassword[0])
+    URL = "http://127.0.0.1:5001/Covid/"+ state
     print(URL)
     req = requests.get(URL, auth = (user[1], userpassword[0]))
     result = req.text
