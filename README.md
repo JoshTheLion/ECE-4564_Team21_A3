@@ -21,12 +21,12 @@ Throughout this assignment, we encountered roadblocks that have become somewhat 
 - `from flask_httpauth import HTTPBasicAuth` : used for username and password
 - `import requests` :  To recieve+send HTTP POST/GET requests from/to the Service Flask and the Weather Data API
 
-  # Libraries to help scrape COVID data from:
+  ### Libraries to help scrape COVID data from:
     https://www.worldometers.info/coronavirus/country/us/
     
 - `import json` : Library to help parse COVID data
 - `from bs4 import BeautifulSoup` : Library to help scrape COVID data
-- `from urllib.request import` -- Libraries to help scrape COVID data
+- `from urllib.request import` : Libraries to help scrape COVID data
 
 # Team Members Contributions
 - Marilyn contributed to the scraper.py gathering data for covid. Also help contribute and write the services.py file for marvel, covid, and weather.
