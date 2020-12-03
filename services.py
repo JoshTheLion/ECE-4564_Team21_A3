@@ -37,7 +37,7 @@ SCRAPER_PORT = 8081
 
 KEY_MARVEL = '5fd57f8f0bc35903bab675fbfc99d9f7'
 PRIVATE_KEY_MARVEL = 'b790475b329908ce985571a69040077fb8f54f8d'
-TIME_STAMP = ''
+TIME_STAMP = '113020200555'
 service_username = 'admin'
 service_password = 'secret'
 
@@ -112,7 +112,7 @@ def get_resource():
 # request with auth=username, password
 ####
 def marvel():
-    marv = KEY_MARVEL + PRIVATE_KEY_MARVEL + --
+    marv = KEY_MARVEL + PRIVATE_KEY_MARVEL + ???????
     marv_unecrypted = hashlib.md5(marv.encode())
     url = "https://gateway.marvel.com/v1/public/stories/36864?" + KEY_MARVEL
     print(url)
