@@ -47,13 +47,12 @@ KEY_WEATHER = '81827b45a852dd349a8247994f2d47f5'
 # are added via cURL command through Services API?
 #scrape_user = 'admin'
 #scrape_pass = 'secret'
-Users = [ # TODO: Change this to be a container of "User" Class objects, bc MongoDB felt like overkill
-    {
+Users = {
         'id': 0
         'username': 'admin',
         'password': 'secret'
     }
-]
+
 
 auth = HTTPBasicAuth()
 
@@ -163,5 +162,5 @@ soup = BeautifulSoup(page.content, 'html.parser')
 result = soup.find(id='usa_table_countries_today')
 stateN = result.find('a', string=state)
 
-if __name__ == '_main_': # Run the Scraper Flask instance
-    app.run(debug=True, host='0.0.0', port=SCRAPER_PORT)
+if __name__ == "__main__": # Run the Scraper Flask instance
+    app.run(debug=True, host='127.0.0.1', port=SCRAPER_PORT)
