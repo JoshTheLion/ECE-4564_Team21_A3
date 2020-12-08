@@ -47,12 +47,13 @@ KEY_WEATHER = '81827b45a852dd349a8247994f2d47f5'
 # are added via cURL command through Services API?
 #scrape_user = 'admin'
 #scrape_pass = 'secret'
-Users = {
-        'id': 0
+Users = [
+    {
+        'id': 0,
         'username': 'admin',
         'password': 'secret'
     }
-
+]
 
 auth = HTTPBasicAuth()
 
