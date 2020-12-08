@@ -149,5 +149,5 @@ def covid_func(state):
 ###                   
 
 
-if __name__ == '_main_': # Run the Service Flask instance
-    app.run(debug=True, host='0.0.0', port=SERVICE_PORT)
+if __name__ == "__main__": # Run the Service Flask instance
+    app.run(host='0.0.0.0', port=SERVICE_PORT, debug=True)
