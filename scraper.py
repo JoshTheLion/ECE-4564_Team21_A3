@@ -135,10 +135,10 @@ city_name = 'Blacksburg'
 URL = 'http://api.openweathermap.org/data/2.5/weather?q='+ city_name +'&appid=' + KEY_WEATHER #pseudo website
 
 page = requests.get(URL).text
-soup = BeautifulSoup(page, 'html.parser')
+
 
 # extract wanted fields from json object and print
-jsonText = json.loads(soup.text)
+jsonText = json.loads(page)
 mainText = jsonText['main']
 print('location: '+ city_name+', temperature: '+ str(mainText['temp'])+', pressure: '+ str(mainText['pressure'])+', humidity: '+str(mainText['humidity']))
 
