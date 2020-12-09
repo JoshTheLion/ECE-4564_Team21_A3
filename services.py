@@ -33,10 +33,10 @@ auth = HTTPBasicAuth()
 
 # Setting default values
 SERVICE_IP = '0.0.0.0' #'127.0.0.1'  # NOTE: This is hardcoded as '127.0.0.1' so it can be tested locally
-SERVICE_PORT = 3000#8081
+SERVICE_PORT = 8081
 
 SCRAPER_IP = '0.0.0.0' #'127.0.0.1'  # NOTE: This is hardcoded as '127.0.0.1' so it can be tested locally
-SCRAPER_PORT = 8081#3000
+SCRAPER_PORT = 3000
 
 KEY_MARVEL = '5fd57f8f0bc35903bab675fbfc99d9f7'
 PRIVATE_KEY_MARVEL = 'b790475b329908ce985571a69040077fb8f54f8d'
@@ -44,7 +44,7 @@ TIME_STAMP = '113020200555' # Where did we get this from? I'm assuming it should
 service_username = 'admin'
 service_password = 'secret'
 marv = KEY_MARVEL + PRIVATE_KEY_MARVEL + TIME_STAMP
-auth = HTTPBasicAuth()
+#auth = HTTPBasicAuth()
 
 ### Authentication Routes ###
 @auth.verify_password
@@ -149,7 +149,7 @@ def covid_func(state):
     print(info)
     user = info[0].split('=')
     userpassword = info[1].split('=')
-     p = userpassword[1].split('\'')
+    p = userpassword[1].split('\'')
     print(user[1])
     print(userpassword[0])
     #URL = "http://127.0.0.1:5001/Covid/"+ state
@@ -160,11 +160,12 @@ def covid_func(state):
     return result
 # end of function
 
-@app.route('/Test/get_resource')
+# Echo service testing route #
+@app.route('/Test/get_services_resource')
 @auth.login_required
-def get_resource():
-    return jsonify({'response': 'Test Success!'})
-###                   
+def get_services_resource():
+    return jsonify({'response': 'Services Ping Test Success!'})
+# end of function            
 
 
 if __name__ == "__main__": # Run the Service Flask instance
