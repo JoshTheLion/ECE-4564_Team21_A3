@@ -139,7 +139,8 @@ def weather(city):
     
     # soup = BeautifulSoup(page.content, 'html.parser')
     # page = soup.find(id = 'ResulsContainer')
-    return jsonify({'response': 'Weather for ' + city_name})
+    return jsonify({'Weather Report\nlocation': city_name}, {'temperature': str(mainText['temp'])},
+                   {'pressure': str(mainText['pressure'])}, {'humidity': str(mainText['humidity'])})
 
 
 # end of function
@@ -155,12 +156,19 @@ def covid(state):
     # input state name here for testing
     state_name = 'Maine'
     print(state)
-    URL2 = 'https//wwww.worldometer.info/coronavirus/country/us'
+    URL2 = 'http://wwww.worldometer.info/coronavirus/country/us'
     pages = requests.get(URL2)
     soup = BeautifulSoup(pages.content, 'html.parser')
     result = soup.find(id='usa_table_countries_today')
-    stateN = result.find('a', string=state)
-    return jsonify({'state': state})
+    
+    state_R = result.find('a', string=state)
+    totalCases_R = state_R.find_next('td')
+    skipField_R = totalCases_R.find_next('td')
+    totalDeaths_R = skipField_R.find_next('td')
+    skipField_R = totalDeaths_R.find_next('td')
+    totalRec_R = skipField_R.find_next('td')
+    
+    return jsonify({'State': state_R}, {'Total Cases': totalCases_R}, {'Total Dead': totalDeaths_R}, {'Total Recovered': totalRec_R})
 
 
 # end of function
