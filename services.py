@@ -29,17 +29,18 @@ import requests # To send+recieve HTTP GET/POST requests to/from the Scraper Fla
 
 ### Initialization ###
 app = Flask(__name__)
+auth = HTTPBasicAuth()
 
 # Setting default values
-SERVICE_IP = '127.0.0.1'  # NOTE: This is hardcoded as '127.0.0.1' so it can be tested locally
-SERVICE_PORT = 3000
+SERVICE_IP = '0.0.0.0' #'127.0.0.1'  # NOTE: This is hardcoded as '127.0.0.1' so it can be tested locally
+SERVICE_PORT = 3000#8081
 
-SCRAPER_IP = '127.0.0.1'  # NOTE: This is hardcoded as '127.0.0.1' so it can be tested locally
-SCRAPER_PORT = 8081
+SCRAPER_IP = '0.0.0.0' #'127.0.0.1'  # NOTE: This is hardcoded as '127.0.0.1' so it can be tested locally
+SCRAPER_PORT = 8081#3000
 
 KEY_MARVEL = '5fd57f8f0bc35903bab675fbfc99d9f7'
 PRIVATE_KEY_MARVEL = 'b790475b329908ce985571a69040077fb8f54f8d'
-TIME_STAMP = '113020200555'
+TIME_STAMP = '113020200555' # Where did we get this from? I'm assuming it shouldn't be changed?
 service_username = 'admin'
 service_password = 'secret'
 marv = KEY_MARVEL + PRIVATE_KEY_MARVEL + TIME_STAMP
@@ -50,6 +51,8 @@ auth = HTTPBasicAuth()
 def verify_password(username, password):
     if username == service_username:
         if password == service_password:
+            print(username)
+            print(password)
             return True
         return False
     return False
@@ -82,13 +85,20 @@ def not_found(error):
 ####
 # request with auth=username, password
 ####
-def marvel():
+@app.route('/Marvel?story=<int:number>', methods = ['POST'])
+#@auth.login_required
+def marvel(number):
+    print('breakpoint?')
     marv_unecrypted = hashlib.md5(marv.encode())
-    url = "https://gateway.marvel.com/v1/public/stories/36864?" + str(request.args.get(marv_unecrypted))
+    url = "http://gateway.marvel.com/v1/public/stories/36864?" + str(request.args.get(marv_unecrypted))
+    #url = "https://gateway.marvel.com/v1/public/stories/36864?apikey=" + str(request.args.get(marv_unecrypted))
     print(url)
     r = requests.get(url, auth=('username', 'password'))
+    #r = requests.get(url)
+    print(r.url)
     finalresults = r.text
-    return finalresults
+    #return finalresults
+    return jsonify({'story': 'Here is the Marvel story description requested: %s' % finalresults})
 ####
 # capture the sent username and password 
 # and compare to whatever the login credentials saved
@@ -113,7 +123,7 @@ def notFound(error):
 ### Request Routes ###
 
 #one route
-@app.route('/Weather/<string:city>', methods = ['POST'])
+@app.route('/Weather/<string:city_name>', methods = ['POST'])
 @auth.login_required
 def weatherfunct(city_name):
     info = str(request.get_data()).split('&')
@@ -121,7 +131,8 @@ def weatherfunct(city_name):
     user = info[0].split('=')
     userpassword = info[1].split('=')
     p = userpassword[1].split('\'')
-    URL = "http://127.0.0.1:5001/Weather/"+city_name
+    #URL = "http://127.0.0.1:5001/Weather/"+city_name
+    URL = "http://" + SCRAPER_IP +":" + SCRAPER_PORT + "/Weather/"+city_name
     print(user[1])
     print(userpassword[0])
     print(URL)
@@ -138,18 +149,24 @@ def covid_func(state):
     print(info)
     user = info[0].split('=')
     userpassword = info[1].split('=')
-    p = userpassword[1].split('\'')
+     p = userpassword[1].split('\'')
     print(user[1])
     print(userpassword[0])
-    URL = "http://127.0.0.1:5001/Covid/"+ state
+    #URL = "http://127.0.0.1:5001/Covid/"+ state
+    URL = "http://" + SCRAPER_IP +":" + SCRAPER_PORT + "/Covid/"+ state
     print(URL)
-    req = requests.get(URL, auth = (user[1], p[0]))
+    requests.get(URL, auth = (user[1], p[0]))
     result = req.text
     return result
 # end of function
 
+@app.route('/Test/get_resource')
+@auth.login_required
+def get_resource():
+    return jsonify({'response': 'Test Success!'})
 ###                   
 
 
 if __name__ == "__main__": # Run the Service Flask instance
-    app.run(host='127.0.0.1', port=SERVICE_PORT, debug=True)
+    app.run(host=SERVICE_IP, port=SERVICE_PORT, debug=True)
+
