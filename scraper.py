@@ -7,7 +7,7 @@ Run the Scraper code with the simple command line format:
 
 Supports 3 HTTP `request` formats: ??? I'm just guessing at the format here...
     r = requests.get('https://api.website.com', auth=('user', 'pass'))
-    
+
     r = requests.get('http://' + SCRAPER_IP + ':' + SCRAPER_PORT + '/Weather/<city>?user=' + {scrape_user} + '&pass=' + {scrape_pass})
     r = requests.get('http://' + SCRAPER_IP + ':' + SCRAPER_PORT + '/COVID/<state>?user=' + {scrape_user} + '&pass=' + {scrape_pass})
     r = requests.post('http://' + SCRAPER_IP + ':' + SCRAPER_PORT + '/Update?user=' + {scrape_user} + '&pass=' + {scrape_pass})
@@ -20,8 +20,8 @@ and:
 """
 from flask import Flask, jsonify, abort, request, make_response, url_for
 from flask_httpauth import HTTPBasicAuth
-
-import requests # To recieve+send HTTP POST/GET requests from/to the Service Flask and the Weather Data API
+from flask_restful import reqparse
+import requests  # To recieve+send HTTP POST/GET requests from/to the Service Flask and the Weather Data API
 
 # Libraries to help scrape COVID data from:
 # https://www.worldometers.info/coronavirus/country/us/
@@ -30,17 +30,16 @@ import json
 from bs4 import BeautifulSoup
 from urllib.request import Request, urlopen
 
-
 ### Initialization ###
 app = Flask(__name__)
 auth = HTTPBasicAuth()
 
 # Setting default values
-SERVICE_IP = '0.0.0.0'#'127.0.0.1'  # NOTE: This is hardcoded as '127.0.0.1' so it can be tested locally
-SERVICE_PORT = 8081#3000
+SERVICE_IP = '0.0.0.0'  # '127.0.0.1'  # NOTE: This is hardcoded as '127.0.0.1' so it can be tested locally
+SERVICE_PORT = 8081  # 3000
 
-SCRAPER_IP = '0.0.0.0'#'127.0.0.1'  # NOTE: This is hardcoded as '127.0.0.1' so it can be tested locally
-SCRAPER_PORT = 3000#8081
+SCRAPER_IP = '0.0.0.0'  # '127.0.0.1'  # NOTE: This is hardcoded as '127.0.0.1' so it can be tested locally
+SCRAPER_PORT = 3000  # 8081
 
 KEY_WEATHER = '81827b45a852dd349a8247994f2d47f5'
 
@@ -48,27 +47,25 @@ KEY_WEATHER = '81827b45a852dd349a8247994f2d47f5'
 # are added via cURL command through Services API?
 scrape_user = 'user1'
 scrape_pass = 'pass1'
-Users = [
-    {
-        'id': 0,
+Users = {
         'username': 'admin',
         'password': 'secret'
-    }
-]
+}
 
-#auth = HTTPBasicAuth()
+
+# auth = HTTPBasicAuth()
 
 ### Authentication Routes ###
 @auth.verify_password
 def verify_password(username, password):
-    #user = [user for user in Users if user['id'] == task_id]
-    #if len(task) == 0:
+    # user = [user for user in Users if user['id'] == task_id]
+    # if len(task) == 0:
     #    abort(404)
-    #user = User.query.get(id)
-    #if not user:
+    # user = User.query.get(id)
+    # if not user:
     #    abort(400)
-    #return jsonify({'username': user.username})
-
+    # return jsonify({'username': user.username})
+    
     if username == scrape_user:
         if password == scrape_pass:
             print(username)
@@ -76,6 +73,8 @@ def verify_password(username, password):
             return True
         return False
     return False
+
+
 # end of function
 
 @auth.error_handler
@@ -84,56 +83,35 @@ def unauthorized():
     # auth dialog
     return make_response(jsonify({'error': 'Unauthorized access'}), 403)
 
+
 @app.errorhandler(400)
 def bad_request(error):
     return make_response(jsonify({'error': 'Bad request'}), 400)
+
 
 @app.errorhandler(404)
 def not_found(error):
     return make_response(jsonify({'error': 'Not found'}), 404)
 
-#============================================================#
+
+# ============================================================#
 # TODO: Finish adapting this section for our purposes
-#============================================================#
+# ============================================================#
+
 @app.route('/Update', methods=['POST'])
 @auth.login_required
-def new_user():
-    #-------------------------------------------------------#
-    n_user = {
-        'id': Users[-1]['id'] + 1 if len(Users) > 0 else 1,
-        'username': request.json.get('username'),
-        'password': request.json.get('password')
-    }
-    Users.append(n_user)
-    #-------------------------------------------------------#
-    username = request.json.get('username')
-    password = request.json.get('password')
-    if username is None or password is None:
-        abort(400)    # missing arguments
-    if User.query.filter_by(username=username).first() is not None:
-        abort(400)    # existing user
-    user = User(username=username)
-    user.hash_password(password)
-    db.session.add(user)
-    db.session.commit()
-    return (jsonify({'username': user.username}), 201,
-            {'Location': url_for('get_user', id=user.id, _external=True)})
+def newuser():
+    par = reqparse.RequestParser()
+    par.add_argument('user')
+    par.add_argument('pass')
+    par.add_argument('new_arg')
+    par.add_argument('new_user')
+    args = par.parse_args()
+    newperson = {args['new_user']: args['new_pass']}
+    Users.update(newperson)
+    return Users
 
-
-#@app.route('/api/users/<int:id>')
-@app.route('/api/users/<int:id>')
-def get_user(id):
-    user = User.query.get(id)
-    if not user:
-        abort(400)
-    return jsonify({'username': user.username})
-
-
-@app.route('/api/resource')
-@auth.login_required
-def get_resource():
-    return jsonify({'data': 'Hello, %s!' % g.user.username})
-#============================================================#
+# ============================================================#
 
 @app.route('/Weather/<string:city>', methods=['GET'])
 @auth.login_required
@@ -143,30 +121,33 @@ def weather(city):
     city_name = 'Blacksburg'
     
     # gather weather data from API based on city
-    URL = 'http://api.openweathermap.org/data/2.5/weather?q='+ city_name +'&appid=' + KEY_WEATHER #pseudo website
+    URL = 'http://api.openweathermap.org/data/2.5/weather?q=' + city_name + '&appid=' + KEY_WEATHER  # pseudo website
     page = requests.get(URL).text
     
     # extract wanted fields from json object and print
     jsonText = json.loads(page)
     mainText = jsonText['main']
     
-    print('location: '+ city_name+', temperature: '+ str(mainText['temp'])+', pressure: '+ str(mainText['pressure'])+', humidity: '+str(mainText['humidity']))
+    print('location: ' + city_name + ', temperature: ' + str(mainText['temp']) + ', pressure: ' + str(
+        mainText['pressure']) + ', humidity: ' + str(mainText['humidity']))
     # Send an HTTP GET request to the API for weather data
-    #r = requests.get('https://api.github.com', auth=('user', 'pass'))
-    r = requests.get(URL) # TODO: Double-check the documentation on their website for the proper "query method" format
+    # r = requests.get('https://api.github.com', auth=('user', 'pass'))
+    r = requests.get(URL)  # TODO: Double-check the documentation on their website for the proper "query method" format
     
-    print (r.status_code)
-    print (r.headers['content-type'])
+    print(r.status_code)
+    print(r.headers['content-type'])
     
-    #soup = BeautifulSoup(page.content, 'html.parser')
-    #page = soup.find(id = 'ResulsContainer')
-    return jsonify({'response':'Weather for ' + city_name})
+    # soup = BeautifulSoup(page.content, 'html.parser')
+    # page = soup.find(id = 'ResulsContainer')
+    return jsonify({'response': 'Weather for ' + city_name})
+
+
 # end of function
 
 
 ### Gathering Covid Data ###
 # input state name here
-#state_name = 'Maine'
+# state_name = 'Maine'
 
 @app.route('/Covid/<string:state>', methods=['GET'])
 @auth.login_required
@@ -176,10 +157,12 @@ def covid(state):
     print(state)
     URL2 = 'https//wwww.worldometer.info/coronavirus/country/us'
     pages = requests.get(URL2)
-    soup = BeautifulSoup(page.content, 'html.parser')
+    soup = BeautifulSoup(pages.content, 'html.parser')
     result = soup.find(id='usa_table_countries_today')
     stateN = result.find('a', string=state)
     return jsonify({'state': state})
+
+
 # end of function
 
 # Echo service testing route #
@@ -187,7 +170,9 @@ def covid(state):
 @auth.login_required
 def get_scraper_resource():
     return jsonify({'response': 'Scraper Ping Test Success!'})
+
+
 # end of function
 
-if __name__ == "__main__": # Run the Scraper Flask instance
+if __name__ == "__main__":  # Run the Scraper Flask instance
     app.run(host=SCRAPER_IP, port=SCRAPER_PORT, debug=True)
