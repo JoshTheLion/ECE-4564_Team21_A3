@@ -120,11 +120,12 @@ def weatherfunct(city_name):
     print(info)
     user = info[0].split('=')
     userpassword = info[1].split('=')
+    p = userpassword[1].split('\'')
     URL = "http://127.0.0.1:5001/Weather/"+city_name
     print(user[1])
     print(userpassword[0])
     print(URL)
-    req = requests.get(URL, auth = (user[1], userpassword[0]))
+    req = requests.get(URL, auth = (user[1], p[0]))
     result = req.text
     return result
 # end of function
@@ -137,11 +138,12 @@ def covid_func(state):
     print(info)
     user = info[0].split('=')
     userpassword = info[1].split('=')
+    p = userpassword[1].split('\'')
     print(user[1])
     print(userpassword[0])
     URL = "http://127.0.0.1:5001/Covid/"+ state
     print(URL)
-    req = requests.get(URL, auth = (user[1], userpassword[0]))
+    req = requests.get(URL, auth = (user[1], p[0]))
     result = req.text
     return result
 # end of function
