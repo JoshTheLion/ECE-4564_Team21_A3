@@ -160,7 +160,9 @@ def covid(state):
     soup = BeautifulSoup(pages.content, 'html.parser')
     result = soup.find(id='usa_table_countries_today')
     stateN = result.find('a', string=state)
-    return jsonify({'state': state})
+    totalCases = stateN.find_next('td') #this line bee edited
+    return ('{state:' state +'total cases:' + str(totalCases.text).strip() #this line been edited
+   # return jsonify()
 
 
 # end of function
