@@ -116,7 +116,7 @@ def notFound(error):
 @app.route('/Weather/<string:city>', methods = ['POST'])
 @auth.login_required
 def weatherfunct(city_name):
-    info = str(request.get_data().split('&'))
+    info = str(request.get_data()).split('&')
     print(info)
     user = info[0].split('=')
     userpassword = info[1].split('=')
@@ -133,7 +133,7 @@ def weatherfunct(city_name):
 @app.route('/COVID/<string:state>', methods = ['POST'])
 @auth.login_required
 def covid_func(state):
-    info = str(request.get_data().split('&'))
+    info = str(request.get_data()).split('&')
     print(info)
     user = info[0].split('=')
     userpassword = info[1].split('=')
@@ -150,4 +150,4 @@ def covid_func(state):
 
 
 if __name__ == "__main__": # Run the Service Flask instance
-    app.run(host='0.0.0.0', port=SERVICE_PORT, debug=True)
+    app.run(host='127.0.0.1', port=SERVICE_PORT, debug=True)
