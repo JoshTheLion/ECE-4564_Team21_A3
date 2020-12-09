@@ -90,13 +90,15 @@ def not_found(error):
 def marvel(number):
     print('breakpoint?')
     marv_unecrypted = hashlib.md5(marv.encode())
-    url = "http://gateway.marvel.com/v1/public/stories/36864?" + str(request.args.get(marv_unecrypted))
+    #url = "http://gateway.marvel.com/v1/public/stories/36864?" + str(request.args.get(marv_unecrypted))
+    url = "http://gateway.marvel.com/v1/public/stories/" + str(request.args.get('story')) + "?apikey="+KEY_MARVEL+"&ts="+TIME_STAMP+"&hash="+marv_unecrypted.hexdigest()
     #url = "https://gateway.marvel.com/v1/public/stories/36864?apikey=" + str(request.args.get(marv_unecrypted))
     print(url)
-    r = requests.get(url, auth=('username', 'password'))
-    #r = requests.get(url)
+    #r = requests.get(url, auth=('username', 'password'))
+    r = requests.get(url)
     print(r.url)
     finalresults = r.text
+    print(r.text)
     #return finalresults
     return jsonify({'story': 'Here is the Marvel story description requested: %s' % finalresults})
 ####
