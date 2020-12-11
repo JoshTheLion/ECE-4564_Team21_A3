@@ -1,9 +1,17 @@
 #!flask/bin/python
 """
-ECE 4564 - Assignment 3 - Our API
+ECE 4564 - Assignment 3 - Our API (Services Flask)
+
+Before running, first make sure that the IP address you want to use is set for the parameters:
+    SERVICE_IP = '0.0.0.0'
+    SCRAPER_IP = '0.0.0.0'
+(default values shown, be sure these assignments are consistent in both this file and scraper.py)
 
 Run the Service API code with the simple command line format:
-    $ python3 service.py
+    $ python3 services.py
+
+Once the flask instance is running, test connectivity from a separate terminal window with the command:
+    $ curl -u admin:secret http://0.0.0.0:8081/Test/get_services_resource
 
 Supports 4 cURL command formats:
     curl -u service_username:service_password http://127.0.0.1:8081/Marvel?story=36864
@@ -32,10 +40,10 @@ app = Flask(__name__)
 auth = HTTPBasicAuth()
 
 # Setting default values
-SERVICE_IP = '0.0.0.0' #'127.0.0.1'  # NOTE: This is hardcoded as '127.0.0.1' so it can be tested locally
+SERVICE_IP = '0.0.0.0' #('0.0.0.0' or '127.0.0.1' for local testing, 'xxx.x.x.x' format for full online usage)
 SERVICE_PORT = 8081
 
-SCRAPER_IP = '0.0.0.0' #'127.0.0.1'  # NOTE: This is hardcoded as '127.0.0.1' so it can be tested locally
+SCRAPER_IP = '0.0.0.0' #('0.0.0.0' or '127.0.0.1' for local testing, 'xxx.x.x.x' format for full online usage)
 SCRAPER_PORT = 3000
 
 KEY_MARVEL = '5fd57f8f0bc35903bab675fbfc99d9f7'

@@ -1,11 +1,19 @@
 #!flask/bin/python
 """
-ECE 4564 - Assignment 3 - Our API
+ECE 4564 - Assignment 3 - Our API (Scraper Flask)
+
+Before running, first make sure that the IP address you want to use is set for the parameters:
+    SERVICE_IP = '0.0.0.0'
+    SCRAPER_IP = '0.0.0.0'
+(default values shown, be sure these assignments are consistent in both this file and scraper.py)
 
 Run the Scraper code with the simple command line format:
     $ python3 scraper.py
 
-Supports 3 HTTP `request` formats: ??? I'm just guessing at the format here...
+Once the flask instance is running, test connectivity from a separate terminal window with the command:
+    $ curl -u user1:pass1 http://0.0.0.0:3000/Test/get_scraper_resource
+
+Supports 3 HTTP `requests` from services.py: ??? I'm just guessing at the format here...
     r = requests.get('https://api.website.com', auth=('user', 'pass'))
 
     r = requests.get('http://' + SCRAPER_IP + ':' + SCRAPER_PORT + '/Weather/<city>?user=' + {scrape_user} + '&pass=' + {scrape_pass})
@@ -35,11 +43,11 @@ app = Flask(__name__)
 auth = HTTPBasicAuth()
 
 # Setting default values
-SERVICE_IP = '0.0.0.0'  # '127.0.0.1'  # NOTE: This is hardcoded as '127.0.0.1' so it can be tested locally
-SERVICE_PORT = 8081  # 3000
+SERVICE_IP = '0.0.0.0' #('0.0.0.0' or '127.0.0.1' for local testing, 'xxx.x.x.x' format for full online usage)
+SERVICE_PORT = 8081
 
-SCRAPER_IP = '0.0.0.0'  # '127.0.0.1'  # NOTE: This is hardcoded as '127.0.0.1' so it can be tested locally
-SCRAPER_PORT = 3000  # 8081
+SCRAPER_IP = '0.0.0.0' #('0.0.0.0' or '127.0.0.1' for local testing, 'xxx.x.x.x' format for full online usage)
+SCRAPER_PORT = 3000
 
 KEY_WEATHER = '81827b45a852dd349a8247994f2d47f5'
 
@@ -113,12 +121,12 @@ def newuser():
 
 # ============================================================#
 
-@app.route('/Weather/<string:city>', methods=['GET'])
+@app.route('/Weather/<string:city_name>', methods=['GET'])
 @auth.login_required
 ### Gathering Weather Data ###
-def weather(city):
+def weather(city_name):
     # input city name here for testing
-    city_name = 'Blacksburg'
+    #city_name = 'Blacksburg'
     
     # gather weather data from API based on city
     URL = 'http://api.openweathermap.org/data/2.5/weather?q=' + city_name + '&appid=' + KEY_WEATHER  # pseudo website
@@ -130,8 +138,8 @@ def weather(city):
     
     print('location: ' + city_name + ', temperature: ' + str(mainText['temp']) + ', pressure: ' + str(
         mainText['pressure']) + ', humidity: ' + str(mainText['humidity']))
+    
     # Send an HTTP GET request to the API for weather data
-    # r = requests.get('https://api.github.com', auth=('user', 'pass'))
     r = requests.get(URL)  # TODO: Double-check the documentation on their website for the proper "query method" format
     
     print(r.status_code)
@@ -141,27 +149,23 @@ def weather(city):
     # page = soup.find(id = 'ResulsContainer')
     return jsonify({'Weather Report\nlocation': city_name}, {'temperature': str(mainText['temp'])},
                    {'pressure': str(mainText['pressure'])}, {'humidity': str(mainText['humidity'])})
-
-
 # end of function
 
 
 ### Gathering Covid Data ###
-# input state name here
-# state_name = 'Maine'
-
-@app.route('/Covid/<string:state>', methods=['GET'])
+@app.route('/Covid/<string:state_name>', methods=['GET'])
 @auth.login_required
-def covid(state):
+def covid(state_name):
     # input state name here for testing
     state_name = 'Maine'
-    print(state)
+    
+    print(state_name)
     URL2 = 'http://wwww.worldometer.info/coronavirus/country/us'
     pages = requests.get(URL2)
     soup = BeautifulSoup(pages.content, 'html.parser')
     result = soup.find(id='usa_table_countries_today')
     
-    state_R = result.find('a', string=state)
+    state_R = result.find('a', string=state_name)
     totalCases_R = state_R.find_next('td')
     skipField_R = totalCases_R.find_next('td')
     totalDeaths_R = skipField_R.find_next('td')
@@ -169,8 +173,6 @@ def covid(state):
     totalRec_R = skipField_R.find_next('td')
     
     return jsonify({'State': state_R}, {'Total Cases': totalCases_R}, {'Total Dead': totalDeaths_R}, {'Total Recovered': totalRec_R})
-
-
 # end of function
 
 # Echo service testing route #
@@ -178,8 +180,6 @@ def covid(state):
 @auth.login_required
 def get_scraper_resource():
     return jsonify({'response': 'Scraper Ping Test Success!'})
-
-
 # end of function
 
 if __name__ == "__main__":  # Run the Scraper Flask instance
