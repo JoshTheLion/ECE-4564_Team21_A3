@@ -26,7 +26,7 @@ Based on example code from a 4-part series of articles by Miguel Grinberg, at:
 and:
     https://realpython.com/beautiful-soup-web-scraper-python/
 """
-from flask import Flask, jsonify, abort, request, make_response, url_for
+from flask import Flask, jsonify, abort, request, make_response, url_for, render_template
 from flask_httpauth import HTTPBasicAuth
 from flask_restful import reqparse
 import requests  # To recieve+send HTTP POST/GET requests from/to the Service Flask and the Weather Data API
@@ -35,8 +35,9 @@ import requests  # To recieve+send HTTP POST/GET requests from/to the Service Fl
 # https://www.worldometers.info/coronavirus/country/us/
 # Important: NOT using API requests for this one
 import json
+import hashlib
 from bs4 import BeautifulSoup
-from urllib.request import Request, urlopen
+#from urllib.request import Request, urlopen
 
 ### Initialization ###
 app = Flask(__name__)
@@ -153,18 +154,16 @@ def weather(city_name):
 
 
 ### Gathering Covid Data ###
-@app.route('/Covid/<string:state_name>', methods=['GET'])
+@app.route('/COVID/<string:state_name>', methods=['GET'])
 @auth.login_required
 def covid(state_name):
-    # input state name here for testing
-    state_name = 'Maine'
-    
+    # input state name here for testing 
     print(state_name)
-    URL2 = 'http://wwww.worldometer.info/coronavirus/country/us'
+    URL2 = 'https://wwww.worldometers.info/coronavirus/country/us/'
     pages = requests.get(URL2)
     soup = BeautifulSoup(pages.content, 'html.parser')
     result = soup.find(id='usa_table_countries_today')
-    
+    print('checkpoint1')
     state_R = result.find('a', string=state_name)
     totalCases_R = state_R.find_next('td')
     skipField_R = totalCases_R.find_next('td')

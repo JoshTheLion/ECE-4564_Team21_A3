@@ -146,20 +146,20 @@ def weatherfunct(city_name):
 # end of function
 
 #the second route
-@app.route('/COVID/<string:state>', methods = ['POST'])
+@app.route('/COVID/<string:state_name>', methods = ['POST'])
 @auth.login_required
-def covid_func(state):
+def covid_func(state_name):
     info = str(request.get_data()).split('&')
     print(info)
     user = info[0].split('=')
     userpassword = info[1].split('=')
     p = userpassword[1].split('\'')
     print(user[1])
-    print(userpassword[0])
-    #URL = "http://127.0.0.1:5001/Covid/"+ state
-    URL = "http://" + SCRAPER_IP +":" + SCRAPER_PORT + "/Covid/"+ state
+    print(p[0])
+    URL = "http://" + str(SCRAPER_IP) +":" + str(SCRAPER_PORT) + "/COVID/"+ state_name
     print(URL)
-    requests.get(URL, auth = (user[1], p[0]))
+    req = requests.get(URL, auth = (user[1], p[0]))
+    print('Check')
     result = req.text
     return result
 # end of function
