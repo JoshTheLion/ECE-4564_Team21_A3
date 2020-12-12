@@ -57,8 +57,7 @@ KEY_WEATHER = '81827b45a852dd349a8247994f2d47f5'
 scrape_user = 'user1'
 scrape_pass = 'pass1'
 Users = {
-        'username': 'admin',
-        'password': 'secret'
+        'admin':'secret',
 }
 
 
@@ -102,7 +101,13 @@ def bad_request(error):
 def not_found(error):
     return make_response(jsonify({'error': 'Not found'}), 404)
 
+@app.errorhandler(405)
+def not_link(error):
+    return make_response(jsonify({'error': 'bad'}), 405)
 
+@app.errorhandler(500)
+def bad_website(error):
+    return make_response(jsonify({'error': 'Website error'}), 500)
 # ============================================================#
 # TODO: Finish adapting this section for our purposes
 # ============================================================#
@@ -113,11 +118,16 @@ def newuser():
     par = reqparse.RequestParser()
     par.add_argument('user')
     par.add_argument('pass')
-    par.add_argument('new_arg')
+    par.add_argument('new_pass')
     par.add_argument('new_user')
     args = par.parse_args()
-    newperson = {args['new_user']: args['new_pass']}
-    Users.update(newperson)
+    if args['new_user'] in Users:
+        print('Failed: Already taken')
+    else:
+        newperson = {args['new_user']: args['new_pass']}
+        print(newperson)
+        Users.update(newperson)
+        print('New person added')
     return Users
 
 # ============================================================#
@@ -126,29 +136,18 @@ def newuser():
 @auth.login_required
 ### Gathering Weather Data ###
 def weather(city_name):
-    # input city name here for testing
-    #city_name = 'Blacksburg'
-    
     # gather weather data from API based on city
-    URL = 'http://api.openweathermap.org/data/2.5/weather?q=' + city_name + '&appid=' + KEY_WEATHER  # pseudo website
+    URL = 'http://api.openweathermap.org/data/2.5/weather?q=' + city_name + '&appid=' + KEY_WEATHER  
     page = requests.get(URL).text
-    
     # extract wanted fields from json object and print
     jsonText = json.loads(page)
     mainText = jsonText['main']
-    
     print('location: ' + city_name + ', temperature: ' + str(mainText['temp']) + ', pressure: ' + str(
         mainText['pressure']) + ', humidity: ' + str(mainText['humidity']))
-    
-    # Send an HTTP GET request to the API for weather data
-    r = requests.get(URL)  # TODO: Double-check the documentation on their website for the proper "query method" format
-    
+    r = requests.get(URL)  
     print(r.status_code)
     print(r.headers['content-type'])
-    
-    # soup = BeautifulSoup(page.content, 'html.parser')
-    # page = soup.find(id = 'ResulsContainer')
-    return jsonify({'Weather Report\nlocation': city_name}, {'temperature': str(mainText['temp'])},
+    return jsonify({'Weather Report location': city_name}, {'temperature': str(mainText['temp'])},
                    {'pressure': str(mainText['pressure'])}, {'humidity': str(mainText['humidity'])})
 # end of function
 
@@ -157,13 +156,17 @@ def weather(city_name):
 @app.route('/COVID/<string:state_name>', methods=['GET'])
 @auth.login_required
 def covid(state_name):
-    # input state name here for testing 
+    page = requests.get("https://www.worldometers.info/coronavirus/country/us/")
+    #URL2 = 'https://www.worldometers.info/coronavirus/country/us/'
+    #page = requests.get(URL2)
+    successful = page.status_code
+    print(successful)# if 200 it downloaded successfully
+    soup = BeautifulSoup(page.content, 'html.parser')
     print(state_name)
-    URL2 = 'https://www.worldometers.info/coronavirus/country/us/'
-    pages = requests.get(URL2)
-    soup = BeautifulSoup(pages.content, 'html.parser')
-    results = soup.find(id='usa_table_countries_today')
-    print(results.prettify())
+    return 'successful' #jsonify({'stuff': results})    
+"""
+    page = requests.get("http://dataquestio.github.io/web-scraping-pages/simple.html")results = soup.find(id='usa_table_countries_today')
+#    print(results.prettify())
     print('checkpoint1')
     state_R = results.find('a', string=state_name)
     totalCases_R = state_R.find_next('td')
@@ -173,6 +176,8 @@ def covid(state_name):
     totalRec_R = skipField_R.find_next('td')
     
     return jsonify({'State': state_R}, {'Total Cases': totalCases_R}, {'Total Dead': totalDeaths_R}, {'Total Recovered': totalRec_R})
+"""
+   
 # end of function
 
 # Echo service testing route #
@@ -184,3 +189,12 @@ def get_scraper_resource():
 
 if __name__ == "__main__":  # Run the Scraper Flask instance
     app.run(host=SCRAPER_IP, port=SCRAPER_PORT, debug=True)
+
+
+
+
+
+
+
+
+
