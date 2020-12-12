@@ -78,7 +78,9 @@ def bad_request(error):
 @app.errorhandler(404)
 def not_found(error):
     return make_response(jsonify({'error': 'Not found'}), 404)
-
+@app.errorhandler(405)
+def not_found(error):
+    return make_response(jsonify({'error': 'Not found'}), 405)
 #============================================================#
 # TODO: Finish adapting this section for our purposes
 #============================================================#

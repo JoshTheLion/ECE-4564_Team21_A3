@@ -159,12 +159,13 @@ def weather(city_name):
 def covid(state_name):
     # input state name here for testing 
     print(state_name)
-    URL2 = 'https://wwww.worldometers.info/coronavirus/country/us/'
+    URL2 = 'https://www.worldometers.info/coronavirus/country/us/'
     pages = requests.get(URL2)
     soup = BeautifulSoup(pages.content, 'html.parser')
-    result = soup.find(id='usa_table_countries_today')
+    results = soup.find(id='usa_table_countries_today')
+    print(results.prettify())
     print('checkpoint1')
-    state_R = result.find('a', string=state_name)
+    state_R = results.find('a', string=state_name)
     totalCases_R = state_R.find_next('td')
     skipField_R = totalCases_R.find_next('td')
     totalDeaths_R = skipField_R.find_next('td')
