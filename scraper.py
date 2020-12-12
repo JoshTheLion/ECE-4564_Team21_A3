@@ -1,25 +1,19 @@
 #!flask/bin/python
 """
 ECE 4564 - Assignment 3 - Our API (Scraper Flask)
-
 Before running, first make sure that the IP address you want to use is set for the parameters:
     SERVICE_IP = '0.0.0.0'
     SCRAPER_IP = '0.0.0.0'
 (default values shown, be sure these assignments are consistent in both this file and scraper.py)
-
 Run the Scraper code with the simple command line format:
     $ python3 scraper.py
-
 Once the flask instance is running, test connectivity from a separate terminal window with the command:
     $ curl -u user1:pass1 http://0.0.0.0:3000/Test/get_scraper_resource
-
 Supports 3 HTTP `requests` from services.py: ??? I'm just guessing at the format here...
     r = requests.get('https://api.website.com', auth=('user', 'pass'))
-
     r = requests.get('http://' + SCRAPER_IP + ':' + SCRAPER_PORT + '/Weather/<city>?user=' + {scrape_user} + '&pass=' + {scrape_pass})
     r = requests.get('http://' + SCRAPER_IP + ':' + SCRAPER_PORT + '/COVID/<state>?user=' + {scrape_user} + '&pass=' + {scrape_pass})
     r = requests.post('http://' + SCRAPER_IP + ':' + SCRAPER_PORT + '/Update?user=' + {scrape_user} + '&pass=' + {scrape_pass})
-
 Based on example code from a 4-part series of articles by Miguel Grinberg, at:
     https://blog.miguelgrinberg.com/post/designing-a-restful-api-with-python-and-flask
     https://blog.miguelgrinberg.com/post/restful-authentication-with-flask
@@ -101,17 +95,10 @@ def bad_request(error):
 def not_found(error):
     return make_response(jsonify({'error': 'Not found'}), 404)
 
-@app.errorhandler(405)
-def not_link(error):
-    return make_response(jsonify({'error': 'bad'}), 405)
 
-@app.errorhandler(500)
-def bad_website(error):
-    return make_response(jsonify({'error': 'Website error'}), 500)
 # ============================================================#
 # TODO: Finish adapting this section for our purposes
 # ============================================================#
-
 @app.route('/Update', methods=['POST'])
 @auth.login_required
 def newuser():
@@ -130,24 +117,36 @@ def newuser():
         print('New person added')
     return Users
 
+
 # ============================================================#
 
 @app.route('/Weather/<string:city_name>', methods=['GET'])
 @auth.login_required
 ### Gathering Weather Data ###
 def weather(city_name):
+    # input city name here for testing
+    #city_name = 'Blacksburg'
+    
     # gather weather data from API based on city
-    URL = 'http://api.openweathermap.org/data/2.5/weather?q=' + city_name + '&appid=' + KEY_WEATHER  
+    URL = 'http://api.openweathermap.org/data/2.5/weather?q=' + city_name + '&appid=' + KEY_WEATHER  # pseudo website
     page = requests.get(URL).text
+    
     # extract wanted fields from json object and print
     jsonText = json.loads(page)
     mainText = jsonText['main']
+    
     print('location: ' + city_name + ', temperature: ' + str(mainText['temp']) + ', pressure: ' + str(
         mainText['pressure']) + ', humidity: ' + str(mainText['humidity']))
-    r = requests.get(URL)  
+    
+    # Send an HTTP GET request to the API for weather data
+    r = requests.get(URL)  # TODO: Double-check the documentation on their website for the proper "query method" format
+    
     print(r.status_code)
     print(r.headers['content-type'])
-    return jsonify({'Weather Report location': city_name}, {'temperature': str(mainText['temp'])},
+    
+    # soup = BeautifulSoup(page.content, 'html.parser')
+    # page = soup.find(id = 'ResulsContainer')
+    return jsonify({'Weather Report\nlocation': city_name}, {'temperature': str(mainText['temp'])},
                    {'pressure': str(mainText['pressure'])}, {'humidity': str(mainText['humidity'])})
 # end of function
 
@@ -156,28 +155,22 @@ def weather(city_name):
 @app.route('/COVID/<string:state_name>', methods=['GET'])
 @auth.login_required
 def covid(state_name):
-    page = requests.get("https://www.worldometers.info/coronavirus/country/us/")
-    #URL2 = 'https://www.worldometers.info/coronavirus/country/us/'
-    #page = requests.get(URL2)
-    successful = page.status_code
-    print(successful)# if 200 it downloaded successfully
-    soup = BeautifulSoup(page.content, 'html.parser')
-    print(state_name)
-    return 'successful' #jsonify({'stuff': results})    
-"""
-    page = requests.get("http://dataquestio.github.io/web-scraping-pages/simple.html")results = soup.find(id='usa_table_countries_today')
-#    print(results.prettify())
-    print('checkpoint1')
-    state_R = results.find('a', string=state_name)
+    # input state name here for testing 
+   # print(state_name)
+    URL2 = 'https://www.worldometers.info/coronavirus/country/us/'
+    pages = requests.get(URL2)
+    soup = BeautifulSoup(pages.content, 'html.parser')
+    results = soup.find(id='usa_table_countries_today')
+  #  print(results.prettify())
+   # print('checkpoint1')
+    state_R = results.find('a',string=state_name)
     totalCases_R = state_R.find_next('td')
     skipField_R = totalCases_R.find_next('td')
     totalDeaths_R = skipField_R.find_next('td')
     skipField_R = totalDeaths_R.find_next('td')
     totalRec_R = skipField_R.find_next('td')
     
-    return jsonify({'State': state_R}, {'Total Cases': totalCases_R}, {'Total Dead': totalDeaths_R}, {'Total Recovered': totalRec_R})
-"""
-   
+    return jsonify({'State': str(state_R.text).strip()}, {'Total Cases': str(totalCases_R.text).strip()}, {'Total Dead': str(totalDeaths_R.text).strip()}, {'Total Recovered': str(totalRec_R.text).strip()})
 # end of function
 
 # Echo service testing route #
@@ -189,12 +182,3 @@ def get_scraper_resource():
 
 if __name__ == "__main__":  # Run the Scraper Flask instance
     app.run(host=SCRAPER_IP, port=SCRAPER_PORT, debug=True)
-
-
-
-
-
-
-
-
-
